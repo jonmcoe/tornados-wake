@@ -1,3 +1,4 @@
+import inspect
 import json
 from operator import itemgetter
 
@@ -59,17 +60,13 @@ def _methods_from_handler_class(hc):
     :return: set of implemented methods ex. {'GET', 'POST' 'PUT'}
     """
 
-    BASES = {RequestHandler, object}
+    EXCLUDED_BASES = {RequestHandler, object}
+    mro_classes = inspect.getmro(hc)
+    mro_classes_filtered = [c for c in mro_classes if c not in EXCLUDED_BASES]
+
     candidates = hc.SUPPORTED_METHODS
     result = set()
     for candidate in candidates:
-        if _class_has_method(hc, candidate, BASES):
+        if any((candidate.lower() in klass.__dict__) for klass in mro_classes_filtered):
             result.add(candidate)
     return result
-
-
-def _class_has_method(klass, method, bases):
-    if klass in bases:
-        return False
-    else:
-        return method.lower() in klass.__dict__ or any(_class_has_method(b, method, bases) for b in klass.__bases__)
