@@ -34,8 +34,8 @@ def make_route_handler(base_handler=RequestHandler,
     class RouteHandler(base_handler):
 
         def get(self):
-            include_methods = methods_keyword and bool(int(self.get_argument(methods_keyword, methods_default)))
-            make_tree = tree_keyword and bool(self.get_argument(tree_keyword, tree_default))
+            include_methods = methods_keyword and arg_bool(self.get_argument(methods_keyword, methods_default))
+            make_tree = tree_keyword and arg_bool(self.get_argument(tree_keyword, tree_default))
 
             routes = get_routes_list(self.application, excludes=excludes)
 
@@ -44,12 +44,19 @@ def make_route_handler(base_handler=RequestHandler,
             elif include_methods:
                 payload = {'routes': routes}
             else:
-                payload = {'routes':[r[0] for r in routes]}
+                payload = {'routes': [r[0] for r in routes]}
             respond_func = getattr(self, respond_func_str)
 
             respond_func(json.dumps(payload) if jsonify else payload)
 
     return RouteHandler
+
+
+def arg_bool(val_string):
+    try:
+        return bool(json.loads(val_string.lower()))
+    except:
+        return bool(val_string)
 
 
 def _methods_from_handler_class(hc):
