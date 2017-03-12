@@ -12,16 +12,15 @@ def get_routes_list(application, excludes=frozenset()):
            key=itemgetter(0))
 
 
-def get_route_tree_dict(routes_list):
+def get_route_tree_dict(routes_list, include_methods=True):
     d = {}
     for route, methods in routes_list:
-        methods = list(methods)
         route_split = route.split('/')[1:]  # eliminate empty string in leading position
         subdict = d
         for depth, segment in enumerate(route_split):
             if '/' + segment not in subdict:
                 is_last_segment = depth == len(route_split) - 1
-                subdict['/' + segment] = {'': methods} if is_last_segment else {}
+                subdict['/' + segment] = {'': methods if include_methods else None} if is_last_segment else {}
             subdict = subdict['/' + segment]
     return d
 
@@ -35,15 +34,17 @@ def make_route_handler(base_handler=RequestHandler,
     class RouteHandler(base_handler):
 
         def get(self):
-            include_methods = methods_keyword and self.get_argument(methods_keyword, methods_default)
-            make_tree = tree_keyword and self.get_argument(tree_keyword, tree_default)
+            include_methods = methods_keyword and bool(int(self.get_argument(methods_keyword, methods_default)))
+            make_tree = tree_keyword and bool(self.get_argument(tree_keyword, tree_default))
 
             routes = get_routes_list(self.application, excludes=excludes)
 
             if make_tree:
-                payload = {'routes': get_route_tree_dict(routes)}
+                payload = {'routes': get_route_tree_dict(routes, include_methods=include_methods)}
+            elif include_methods:
+                payload = {'routes': routes}
             else:
-                payload = {'routes': get_routes_list(self.application, excludes=excludes)}
+                payload = {'routes':[r[0] for r in routes]}
             respond_func = getattr(self, respond_func_str)
 
             respond_func(json.dumps(payload) if jsonify else payload)
@@ -65,8 +66,8 @@ def _methods_from_handler_class(hc):
     mro_classes_filtered = [c for c in mro_classes if c not in EXCLUDED_BASES]
 
     candidates = hc.SUPPORTED_METHODS
-    result = set()
+    result = []
     for candidate in candidates:
         if any((candidate.lower() in klass.__dict__) for klass in mro_classes_filtered):
-            result.add(candidate)
+            result.append(candidate)
     return result
