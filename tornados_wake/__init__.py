@@ -65,7 +65,7 @@ def _methods_from_handler_class(hc):
     Will *not* work for any methods set dynamically (like setattr in the `prepare` or something)
 
     :param hc: Handler class
-    :return: set of implemented methods ex. {'GET', 'POST' 'PUT'}
+    :return: list of implemented methods ex. ['GET', 'POST' 'PUT']
     """
 
     EXCLUDED_BASES = {RequestHandler, object}
