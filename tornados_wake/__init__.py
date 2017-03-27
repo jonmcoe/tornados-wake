@@ -78,3 +78,10 @@ def _methods_from_handler_class(hc):
         if any((candidate.lower() in klass.__dict__) for klass in mro_classes_filtered):
             result.append(candidate)
     return result
+
+
+### Flask bonus
+
+def get_flask_routes():
+    from flask import current_app
+    return [(r.rule, r.methods) for r in current_app.url_map.iter_rules()]
