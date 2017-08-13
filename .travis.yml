@@ -2,7 +2,12 @@ language: python
 python:
   - "2.7"
   - "3.5"
+env:
+  matrix:
+    - TORNADO_VERSION=3.2
+    - TORNADO_VERSION=4.4.2
+    - TORNADO_VERSION=4.5.1
 install:
-  - "pip install tornado"
+  - "pip install tornado==$TORNADO_VERSION"
   - "pip install nose"
 script: nosetests
