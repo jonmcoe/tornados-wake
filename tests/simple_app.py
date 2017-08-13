@@ -14,7 +14,7 @@ def make_application():
         (r"/toys", GetPostHandler),
         (r"/toys/(\d+)", GetPutDeletePatchHandler),
         (r"/assets/(.*)", GetOnlyHandler),
-        (r"/routes", make_route_handler())
+        (r"/_routes", make_route_handler())
     ]
     app = Application(routes, default_handler_class=GetOnlyHandler)
 
