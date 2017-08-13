@@ -20,4 +20,5 @@ setup(
     packages=['tornados_wake'],
     long_description=__doc__,
     install_requires=['tornado'],
+    tests_require=['nose']
 )
