@@ -47,7 +47,7 @@ def make_route_handler(base_handler=RequestHandler,
                 payload = {'routes': [r[0] for r in routes]}
             respond_func = getattr(self, respond_func_str)
 
-            respond_func(json.dumps(payload) if jsonify else payload)
+            respond_func(json.dumps(payload, sort_keys=True) if jsonify else payload)
 
     return RouteHandler
 
