@@ -1,2 +1,4 @@
 .cache
 *.pyc
+dist
+tornados_wake.egg-info/
