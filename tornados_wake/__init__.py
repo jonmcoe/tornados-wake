@@ -6,10 +6,19 @@ from tornado.web import RequestHandler
 
 
 def get_routes_list(application, excludes=frozenset()):
-    return sorted(((i._path, _methods_from_handler_class(i.handler_class))
-                   for i in application.handlers[0][1]
-                   if i._path and i._path not in excludes),
-                  key=itemgetter(0))
+    # tornado pre 4.5
+    if hasattr(application, 'handlers'):
+        return sorted(((i._path, _methods_from_handler_class(i.handler_class))
+                       for i in application.handlers[0][1]
+                       if i._path and i._path not in excludes),
+                      key=itemgetter(0))
+    # tornado 4.5+
+    else:
+        rules = application.default_router.rules[0].target.rules
+        return sorted(((i.matcher._path, _methods_from_handler_class(i.target))
+                       for i in rules
+                       if i.matcher._path and i.matcher._path not in excludes),
+                      key=itemgetter(0))
 
 
 def get_route_tree_dict(routes_list, include_methods=True):
