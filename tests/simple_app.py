@@ -1,3 +1,4 @@
+import tornado.ioloop
 from tornado.web import Application, RequestHandler
 
 from tornados_wake import make_route_handler
@@ -52,3 +53,10 @@ class NoRouteHandler(RequestHandler):
 
     def get(self):
         self.finish('{"not":  "here"}')
+
+
+def start_server(port):
+    app = make_application()
+    app.listen(port)
+
+    tornado.ioloop.IOLoop.current().start()
