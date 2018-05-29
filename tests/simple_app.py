@@ -4,7 +4,7 @@ from tornado.web import Application, RequestHandler
 from tornados_wake import make_route_handler
 
 
-def make_application():
+def make_default_application():
     routes = [
         (r"/", GetOnlyHandler),
         (r"/pets", GetPostHandler),
@@ -16,7 +16,24 @@ def make_application():
         (r"/assets/(.*)", GetOnlyHandler),
         (r"/_routes", make_route_handler())
     ]
-    app = Application(routes, default_handler_class=GetOnlyHandler)
+    app = Application(routes, default_handler_class=NoRouteHandler)
+
+    return app
+
+
+def make_alternate_application():
+    routes = [
+        (r"/", GetOnlyHandler),
+        (r"/pets", GetPostHandler),
+        (r"/pets/(\S+)", GetPutDeletePatchHandler),
+        (r"/pets/(\S+)/pictures", GetPostHandler),
+        (r"/pets/(\S+)/pictures/(\d+)", GetPutDeletePatchHandler),
+        (r"/toys", GetPostHandler),
+        (r"/toys/(\d+)", GetPutDeletePatchHandler),
+        (r"/assets/(.*)", GetOnlyHandler),
+        (r"/_routes", make_route_handler(excludes={"/assets/%s", "/_routes"}, methods_default=False, tree_default=False))
+    ]
+    app = Application(routes, default_handler_class=NoRouteHandler)
 
     return app
 
@@ -56,7 +73,11 @@ class NoRouteHandler(RequestHandler):
 
 
 def start_server(port):
-    app = make_application()
+    app = make_default_application()
     app.listen(port)
 
     tornado.ioloop.IOLoop.current().start()
+
+
+if __name__ == '__main__':
+    start_server(8000)

@@ -1,18 +1,32 @@
-from unittest import skip
+import json
 
-from tests.base import BaseHTTPTestCase
+from nose_parameterized import parameterized
+
+from tests.base_server_test_cases import AlternateServerTestCase, DefaultServerTestCase
+from tests import fixtures
 
 
-class TestHandlerTestCase(BaseHTTPTestCase):
+class DefaultHandlerTestCase(DefaultServerTestCase):
 
-    def test_routes_list_with_methods(self):
-        x = self.fetch('/_routes')
-        # TODO: better fixtures, maybe compare dicts
-        expected = b'{"routes": [["/", ["GET"]], ["/_routes", ["GET"]], ["/assets/%s", ["GET"]], ["/pets", ["GET", "POST"]], ["/pets/%s", ["GET", "DELETE", "PATCH", "PUT"]], ["/pets/%s/pictures", ["GET", "POST"]], ["/pets/%s/pictures/%s", ["GET", "DELETE", "PATCH", "PUT"]], ["/toys", ["GET", "POST"]], ["/toys/%s", ["GET", "DELETE", "PATCH", "PUT"]]]}'
-        self.assertEqual(x.body, expected)
+    @parameterized.expand([
+        ('/_routes?methods=false', fixtures.PLAIN_LIST),
+        ('/_routes', fixtures.METHODS_NO_TREE),
+        ('/_routes?tree=true&methods=false', fixtures.TREE_NO_METHODS),
+        ('/_routes?tree=true', fixtures.METHODS_AND_TREE)
+    ])
+    def test_http_response(self, path, expected):
+        res = self.fetch(path)
+        self.assertEqual(json.loads(res.body), expected)
 
-    @skip
-    def test_routes_tree_with_methods(self):
-         x = self.fetch('/_routes?tree=true')
-         expected = 'todo'
-         self.assertEqual(x.body, expected)
+
+class AlternateHandlerTestCase(AlternateServerTestCase):
+
+    @parameterized.expand([
+        ('/_routes', fixtures.PLAIN_LIST_WITHOUT_ROUTES_AND_ASSETS),
+        ('/_routes?methods=true', fixtures.METHODS_NO_TREE_WITHOUT_ROUTES_AND_ASSETS),
+        ('/_routes?tree=true', fixtures.TREE_NO_METHODS_WITHOUT_ROUTES_AND_ASSETS),
+        ('/_routes?tree=true&methods=true', fixtures.METHODS_AND_TREE_WITHOUT_ROUTES_AND_ASSETS)
+    ])
+    def test_http_response(self, path, expected):
+        res = self.fetch(path)
+        self.assertEqual(json.loads(res.body), expected)

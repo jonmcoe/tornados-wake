@@ -10,5 +10,5 @@ env:
     - TORNADO_VERSION=5.0.2
 install:
   - "pip install tornado==$TORNADO_VERSION"
-  - "pip install nose"
+  - "pip install -r test_requirements.txt"
 script: nosetests
