@@ -18,6 +18,22 @@ class DefaultHandlerTestCase(DefaultServerTestCase):
         res = self.fetch(path)
         self.assertEqual(json.loads(res.body), expected)
 
+    def test_response_ordering_tree(self):
+        res_tree = self.fetch('/_routes?tree=1')
+        index_assets = res_tree.body.find('assets')
+        index_pets = res_tree.body.find('pets')
+        index_toys = res_tree.body.find('toys')
+        self.assertGreater(index_pets, index_assets)
+        self.assertGreater(index_toys, index_pets)
+
+    def test_response_ordering_tree_no_methods(self):
+        res_tree = self.fetch('/_routes?tree=1&methods=false')
+        index_assets = res_tree.body.find('assets')
+        index_pets = res_tree.body.find('pets')
+        index_toys = res_tree.body.find('toys')
+        self.assertGreater(index_pets, index_assets)
+        self.assertGreater(index_toys, index_pets)
+
 
 class AlternateHandlerTestCase(AlternateServerTestCase):
 
