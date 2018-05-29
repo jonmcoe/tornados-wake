@@ -6,7 +6,7 @@ from setuptools import setup
 
 setup(
     name="tornados-wake",
-    version="0.1.1",
+    version="0.2.0",
     author="Jon Coe",
     author_email="jonmcoe@gmail.com",
     description="Tornado's Wake: Handler and tools for inspecting routes of a tornado server",
