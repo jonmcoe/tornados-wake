@@ -171,3 +171,9 @@ METHODS_AND_TREE_WITHOUT_ROUTES_AND_ASSETS = {
         }
     }
 }
+
+
+ROUTES_LIST = [('/', ['GET']), ('/_routes', ['GET']), ('/assets/%s', ['GET']), ('/pets', ['GET', 'POST']), ('/pets/%s', ['GET', 'DELETE', 'PATCH', 'PUT']), ('/pets/%s/pictures', ['GET', 'POST']), ('/pets/%s/pictures/%s', ['GET', 'DELETE', 'PATCH', 'PUT']), ('/toys', ['GET', 'POST']), ('/toys/%s', ['GET', 'DELETE', 'PATCH', 'PUT'])]
+
+
+ROUTES_LIST_WITHOUT_ROUTES_AND_ASSETS = [('/', ['GET']), ('/pets', ['GET', 'POST']), ('/pets/%s', ['GET', 'DELETE', 'PATCH', 'PUT']), ('/pets/%s/pictures', ['GET', 'POST']), ('/pets/%s/pictures/%s', ['GET', 'DELETE', 'PATCH', 'PUT']), ('/toys', ['GET', 'POST']), ('/toys/%s', ['GET', 'DELETE', 'PATCH', 'PUT'])]

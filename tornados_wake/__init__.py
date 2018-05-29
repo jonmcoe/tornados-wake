@@ -21,7 +21,34 @@ def get_routes_list(application, excludes=frozenset()):
                       key=itemgetter(0))
 
 
-def get_route_tree_dict(routes_list, include_methods=True):
+def make_route_handler(base_handler=RequestHandler,
+                       excludes=frozenset(),
+                       tree_keyword='tree', tree_default=False,
+                       methods_keyword='methods', methods_default=True,
+                       jsonify=True, respond_func_str='finish'):
+
+    class RouteHandler(base_handler):
+
+        def get(self):
+            include_methods = methods_keyword and _arg_bool(self.get_argument(methods_keyword, methods_default))
+            make_tree = tree_keyword and _arg_bool(self.get_argument(tree_keyword, tree_default))
+
+            routes = get_routes_list(self.application, excludes=excludes)
+
+            if make_tree:
+                payload = {'routes': _get_route_tree_dict(routes, include_methods=include_methods)}
+            elif include_methods:
+                payload = {'routes': routes}
+            else:
+                payload = {'routes': [r[0] for r in routes]}
+            respond_func = getattr(self, respond_func_str)
+
+            respond_func(json.dumps(payload, sort_keys=True) if jsonify else payload)
+
+    return RouteHandler
+
+
+def _get_route_tree_dict(routes_list, include_methods=True):
     d = {}
     for route, methods in routes_list:
         route_split = route.split('/')[1:]  # eliminate empty string in leading position
@@ -34,34 +61,7 @@ def get_route_tree_dict(routes_list, include_methods=True):
     return d
 
 
-def make_route_handler(base_handler=RequestHandler,
-                       excludes=frozenset(),
-                       tree_keyword='tree', tree_default=False,
-                       methods_keyword='methods', methods_default=True,
-                       jsonify=True, respond_func_str='finish'):
-
-    class RouteHandler(base_handler):
-
-        def get(self):
-            include_methods = methods_keyword and arg_bool(self.get_argument(methods_keyword, methods_default))
-            make_tree = tree_keyword and arg_bool(self.get_argument(tree_keyword, tree_default))
-
-            routes = get_routes_list(self.application, excludes=excludes)
-
-            if make_tree:
-                payload = {'routes': get_route_tree_dict(routes, include_methods=include_methods)}
-            elif include_methods:
-                payload = {'routes': routes}
-            else:
-                payload = {'routes': [r[0] for r in routes]}
-            respond_func = getattr(self, respond_func_str)
-
-            respond_func(json.dumps(payload, sort_keys=True) if jsonify else payload)
-
-    return RouteHandler
-
-
-def arg_bool(val_string):
+def _arg_bool(val_string):
     try:
         return bool(json.loads(val_string.lower()))
     except:

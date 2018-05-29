@@ -1,7 +1,6 @@
 import json
 
-from nose_parameterized import parameterized
-
+from parameterized import parameterized
 from tests.base_server_test_cases import AlternateServerTestCase, DefaultServerTestCase
 from tests import fixtures
 
