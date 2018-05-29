@@ -115,4 +115,7 @@ your own way then you should instead use `tornados_wake.get_routes_list` which h
 def get_routes_list(application, excludes=frozenset()):
 ```
 
-and returns a tuple of (path string,  handler class).
+and returns a namedtuple called `RoutesListElement` containing
+* `path` (str)
+* `handler_class` (class)
+* `http_methods` (List[str])

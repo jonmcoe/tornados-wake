@@ -1,3 +1,14 @@
+import sys
+
+from tornados_wake import RoutesListElement
+from tests import simple_app
+
+if sys.version_info.major == 2:
+    from mock import ANY
+else:
+    from unittest.mock import ANY
+
+
 PLAIN_LIST = {
     "routes": [
        "/",
@@ -11,6 +22,7 @@ PLAIN_LIST = {
         "/toys/%s"
     ]
 }
+
 
 METHODS_NO_TREE = {
     "routes": [
@@ -61,6 +73,7 @@ TREE_NO_METHODS = {
     }
 }
 
+
 METHODS_AND_TREE = {
     "routes": {
         "/": {
@@ -108,6 +121,7 @@ PLAIN_LIST_WITHOUT_ROUTES_AND_ASSETS = {
     ]
 }
 
+
 METHODS_NO_TREE_WITHOUT_ROUTES_AND_ASSETS = {
     "routes": [
         ["/", ["GET"]],
@@ -119,6 +133,7 @@ METHODS_NO_TREE_WITHOUT_ROUTES_AND_ASSETS = {
         ["/toys/%s", ["GET", "DELETE", "PATCH", "PUT"]]
     ]
 }
+
 
 TREE_NO_METHODS_WITHOUT_ROUTES_AND_ASSETS = {
     "routes": {
@@ -145,6 +160,7 @@ TREE_NO_METHODS_WITHOUT_ROUTES_AND_ASSETS = {
         }
     }
 }
+
 
 METHODS_AND_TREE_WITHOUT_ROUTES_AND_ASSETS = {
     "routes": {
@@ -173,7 +189,17 @@ METHODS_AND_TREE_WITHOUT_ROUTES_AND_ASSETS = {
 }
 
 
-ROUTES_LIST = [('/', ['GET']), ('/_routes', ['GET']), ('/assets/%s', ['GET']), ('/pets', ['GET', 'POST']), ('/pets/%s', ['GET', 'DELETE', 'PATCH', 'PUT']), ('/pets/%s/pictures', ['GET', 'POST']), ('/pets/%s/pictures/%s', ['GET', 'DELETE', 'PATCH', 'PUT']), ('/toys', ['GET', 'POST']), ('/toys/%s', ['GET', 'DELETE', 'PATCH', 'PUT'])]
+ROUTES_LIST = [
+    RoutesListElement(path='/', handler_class=simple_app.GetOnlyHandler, http_methods=['GET']),
+    RoutesListElement(path='/_routes', handler_class=ANY, http_methods=['GET']),
+    RoutesListElement(path='/assets/%s', handler_class=simple_app.GetOnlyHandler, http_methods=['GET']),
+    RoutesListElement(path='/pets', handler_class=simple_app.GetPostHandler, http_methods=['GET', 'POST']),
+    RoutesListElement(path='/pets/%s', handler_class=simple_app.GetPutDeletePatchHandler, http_methods=['GET', 'DELETE', 'PATCH', 'PUT']),
+    RoutesListElement(path='/pets/%s/pictures', handler_class=simple_app.GetPostHandler, http_methods=['GET', 'POST']),
+    RoutesListElement(path='/pets/%s/pictures/%s', handler_class=simple_app.GetPutDeletePatchHandler, http_methods=['GET', 'DELETE', 'PATCH', 'PUT']),
+    RoutesListElement(path='/toys', handler_class=simple_app.GetPostHandler, http_methods=['GET', 'POST']),
+    RoutesListElement(path='/toys/%s', handler_class=simple_app.GetPutDeletePatchHandler, http_methods=['GET', 'DELETE', 'PATCH', 'PUT'])
+]
 
 
-ROUTES_LIST_WITHOUT_ROUTES_AND_ASSETS = [('/', ['GET']), ('/pets', ['GET', 'POST']), ('/pets/%s', ['GET', 'DELETE', 'PATCH', 'PUT']), ('/pets/%s/pictures', ['GET', 'POST']), ('/pets/%s/pictures/%s', ['GET', 'DELETE', 'PATCH', 'PUT']), ('/toys', ['GET', 'POST']), ('/toys/%s', ['GET', 'DELETE', 'PATCH', 'PUT'])]
+ROUTES_LIST_WITHOUT_ROUTES_AND_ASSETS = [ROUTES_LIST[0]] + ROUTES_LIST[3:]

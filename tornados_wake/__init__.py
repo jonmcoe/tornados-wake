@@ -1,24 +1,28 @@
 import inspect
 import json
-from operator import itemgetter
+from collections import namedtuple
+from operator import attrgetter
 
 from tornado.web import RequestHandler
+
+
+RoutesListElement = namedtuple('RoutesListElement', ['path', "handler_class", 'http_methods'])
 
 
 def get_routes_list(application, excludes=frozenset()):
     # tornado pre 4.5
     if hasattr(application, 'handlers'):
-        return sorted(((i._path, _methods_from_handler_class(i.handler_class))
+        return sorted((RoutesListElement(i._path, i.handler_class, _methods_from_handler_class(i.handler_class))
                        for i in application.handlers[0][1]
                        if i._path and i._path not in excludes),
-                      key=itemgetter(0))
+                      key=attrgetter('path'))
     # tornado 4.5+
     else:
         rules = application.default_router.rules[0].target.rules
-        return sorted(((i.matcher._path, _methods_from_handler_class(i.target))
+        return sorted((RoutesListElement(i.matcher._path, i.target, _methods_from_handler_class(i.target))
                        for i in rules
                        if i.matcher._path and i.matcher._path not in excludes),
-                      key=itemgetter(0))
+                      key=attrgetter('path'))
 
 
 def make_route_handler(base_handler=RequestHandler,
@@ -38,9 +42,9 @@ def make_route_handler(base_handler=RequestHandler,
             if make_tree:
                 payload = {'routes': _get_route_tree_dict(routes, include_methods=include_methods)}
             elif include_methods:
-                payload = {'routes': routes}
+                payload = {'routes': [(r.path, r.http_methods) for r in routes]}
             else:
-                payload = {'routes': [r[0] for r in routes]}
+                payload = {'routes': [r.path for r in routes]}
             respond_func = getattr(self, respond_func_str)
 
             respond_func(json.dumps(payload, sort_keys=True) if jsonify else payload)
@@ -50,7 +54,7 @@ def make_route_handler(base_handler=RequestHandler,
 
 def _get_route_tree_dict(routes_list, include_methods=True):
     d = {}
-    for route, methods in routes_list:
+    for route, _, methods in routes_list:
         route_split = route.split('/')[1:]  # eliminate empty string in leading position
         subdict = d
         for depth, segment in enumerate(route_split):
