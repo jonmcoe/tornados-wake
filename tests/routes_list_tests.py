@@ -11,4 +11,7 @@ class RoutesListTestCase(TestCase):
         self.assertEquals(get_routes_list(make_default_application()), fixtures.ROUTES_LIST)
 
     def test_routes_list_with_excludes(self):
-        self.assertEquals(get_routes_list(make_default_application(), excludes={"/_routes", "/assets/%s"}), fixtures.ROUTES_LIST_WITHOUT_ROUTES_AND_ASSETS)
+        self.assertEquals(
+            get_routes_list(make_default_application(), excludes={"/_routes", "/assets/%s"}),
+            fixtures.ROUTES_LIST_WITHOUT_ROUTES_AND_ASSETS
+        )

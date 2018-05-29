@@ -20,8 +20,5 @@ setup(
     packages=['tornados_wake'],
     long_description=__doc__,
     install_requires=['tornado>=3'],
-    tests_require=['nose', 'parameterized'],
-    extra_requires={
-        ':python_version == "2.7"': ['mock']
-    }
+    tests_require=['nose', 'parameterized']
 )

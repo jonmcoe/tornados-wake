@@ -1,12 +1,5 @@
-import sys
-
 from tornados_wake import RoutesListElement
 from tests import simple_app
-
-if sys.version_info.major == 2:
-    from mock import ANY
-else:
-    from unittest.mock import ANY
 
 
 PLAIN_LIST = {
@@ -189,9 +182,18 @@ METHODS_AND_TREE_WITHOUT_ROUTES_AND_ASSETS = {
 }
 
 
+class AnyClass:
+
+    def __eq__(self, other):
+        return type(other) == type
+
+
+ANY_CLASS = AnyClass()
+
+
 ROUTES_LIST = [
     RoutesListElement(path='/', handler_class=simple_app.GetOnlyHandler, http_methods=['GET']),
-    RoutesListElement(path='/_routes', handler_class=ANY, http_methods=['GET']),
+    RoutesListElement(path='/_routes', handler_class=ANY_CLASS, http_methods=['GET']),
     RoutesListElement(path='/assets/%s', handler_class=simple_app.GetOnlyHandler, http_methods=['GET']),
     RoutesListElement(path='/pets', handler_class=simple_app.GetPostHandler, http_methods=['GET', 'POST']),
     RoutesListElement(path='/pets/%s', handler_class=simple_app.GetPutDeletePatchHandler, http_methods=['GET', 'DELETE', 'PATCH', 'PUT']),
